@@ -15,7 +15,8 @@ import (
 	"github.com/kevinburke/ssh_config"
 )
 
-// SSHProxy is a dialer for tunneling tcp connections through an ssh connection
+// SSHProxy is a dialer for tunneling tcp
+// connections through a ssh connection.
 type SSHProxy struct {
 	Addr string
 	rc   net.Conn
@@ -23,7 +24,8 @@ type SSHProxy struct {
 	cfg  *ssh.ClientConfig
 }
 
-// NewSSHProxy returns a new SSHProxy initialized from the default ssh config
+// NewSSHProxy returns a new SSHProxy
+// initialized from the default ssh config.
 func NewSSHProxy(addr string) *SSHProxy {
 	return &SSHProxy{
 		from: net.JoinHostPort(addr, ssh_config.Get(addr, "Port")),
@@ -37,8 +39,9 @@ func NewSSHProxy(addr string) *SSHProxy {
 	}
 }
 
-// Dial  dials a connection to addr through the proxy. The function prototype
-// is usable with grpc.WithDialer (https://godoc.org/google.golang.org/grpc#WithDialer)
+// Dial dials a connection to addr through the proxy.
+// The function prototype is usable with grpc.WithDialer
+// see: https://godoc.org/google.golang.org/grpc#WithDialer.
 func (sp *SSHProxy) Dial(addr string, retry time.Duration) (net.Conn, error) {
 	client, err := ssh.Dial("tcp", sp.from, sp.cfg)
 	if err != nil {
@@ -52,20 +55,20 @@ func (sp *SSHProxy) Dial(addr string, retry time.Duration) (net.Conn, error) {
 	return sp.rc, nil
 }
 
-// Close closes the previous connection
+// Close closes the previous connection.
 func (sp *SSHProxy) Close() {
 	sp.rc.Close()
 }
 
-// getList returns the given ssh config key containing a comma separated list
-// as a []string
+// getList returns the given ssh config key
+// containing a comma separated list as a []string
 func getList(host, key string) []string {
 	s := ssh_config.Get(host, key)
 	return strings.Split(s, ",")
 }
 
-// authMethods builds a list of ssh.AuthMethod from the configuration for the
-// specified host.
+// authMethods builds a list of ssh.AuthMethod from the
+// configuration for the specified host.
 func authMethods(host string) []ssh.AuthMethod {
 	am := []ssh.AuthMethod{}
 
@@ -95,8 +98,11 @@ func authMethods(host string) []ssh.AuthMethod {
 	return am
 }
 
+// HostKeyAcceptAll accepts all ssh public keys.
 func HostKeyAcceptAll(_ string, _ net.Addr, _ ssh.PublicKey) error { return nil }
-func HostKeyDenyAll(_ string, _ net.Addr, _ ssh.PublicKey) error   { return fmt.Errorf("denied") }
+
+// HostKeyDenyAll denies all ssh public keys.
+func HostKeyDenyAll(_ string, _ net.Addr, _ ssh.PublicKey) error { return fmt.Errorf("denied") }
 
 func getTimeout(host string) time.Duration {
 	s := ssh_config.Get(host, "ConnectTimeout")
