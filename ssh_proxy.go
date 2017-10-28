@@ -75,7 +75,7 @@ func authMethods(host string) []ssh.AuthMethod {
 	if ssh_config.Get(host, "PubkeyAuthentication") == "yes" {
 		var signers []ssh.Signer
 		// Process IdentityFile and add ssh keyss
-		keyFiles := GetList(host, "IdentityFile")
+		keyFiles := getList(host, "IdentityFile")
 
 		for _, keyFile := range keyFiles {
 			// open, read, append
